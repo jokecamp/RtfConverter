@@ -138,9 +138,13 @@ namespace Itenso.Rtf.Interpreter
 					// skip and ignore for the moment
 					break;
 				case RtfSpec.TagFont:
-					fontId = tag.FullName;
-					fontIndex = tag.ValueAsNumber;
-					break;
+                    // Only Set the font id and index if there is a valid number. We have bad rtf text with just \f with no index -Joe
+                    if (tag.FullName.Length > 1)
+                    {
+                        fontId = tag.FullName;
+                        fontIndex = tag.ValueAsNumber;
+                    }
+			        break;
 				case RtfSpec.TagFontKindNil:
 					fontKind = RtfFontKind.Nil;
 					break;

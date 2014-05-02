@@ -7,8 +7,8 @@
 // copyright  : (c) 2004-2012 by Itenso GmbH, Switzerland
 // --------------------------------------------------------------------------
 using System;
-using log4net.Core;
 using log4net.Appender;
+using log4net.Core;
 
 namespace Itenso.Sys.Logging
 {

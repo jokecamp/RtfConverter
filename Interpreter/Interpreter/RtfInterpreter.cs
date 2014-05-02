@@ -270,20 +270,22 @@ namespace Itenso.Rtf.Interpreter
 						case RtfSpec.TagColorBackgroundWord:
 						case RtfSpec.TagColorHighlight:
 						case RtfSpec.TagColorForeground:
-							int colorIndex = tag.ValueAsNumber;
-							if ( colorIndex >= 0 && colorIndex < Context.ColorTable.Count )
-							{
-								IRtfColor newColor = Context.ColorTable[ colorIndex ];
-								bool isForeground = RtfSpec.TagColorForeground.Equals( tag.Name );
-								Context.WritableCurrentTextFormat = isForeground ?
-									Context.WritableCurrentTextFormat.DeriveWithForegroundColor( newColor ) :
-									Context.WritableCurrentTextFormat.DeriveWithBackgroundColor( newColor );
-							}
-							else
-							{
-								throw new RtfUndefinedColorException( Strings.UndefinedColor( colorIndex ) );
-							}
-							break;
+                            //todo need to allow failures
+                            int colorIndex = tag.ValueAsNumber;
+                            if ( colorIndex >= 0 && colorIndex < Context.ColorTable.Count )
+                            {
+                                IRtfColor newColor = Context.ColorTable[ colorIndex ];
+                                bool isForeground = RtfSpec.TagColorForeground.Equals( tag.Name );
+                                Context.WritableCurrentTextFormat = isForeground ?
+                                    Context.WritableCurrentTextFormat.DeriveWithForegroundColor( newColor ) :
+                                    Context.WritableCurrentTextFormat.DeriveWithBackgroundColor( newColor );
+                            }
+                            else
+                            {
+                                // Joe 10/3/2012 Removed because lets not fail if colors don't work!
+                                // throw new RtfUndefinedColorException( Strings.UndefinedColor( colorIndex ) );
+                            }
+                            break;
 						case RtfSpec.TagSection:
 							NotifyInsertBreak( RtfVisualBreakKind.Section );
 							break;
@@ -490,11 +492,13 @@ namespace Itenso.Rtf.Interpreter
 				case RtfInterpreterState.Init:
 					throw new RtfStructureException( Strings.InvalidInitTextState( text.Text ) );
 				case RtfInterpreterState.InHeader:
-					// allow spaces in between header tables
-					if ( !string.IsNullOrEmpty( text.Text ) )
-					{
-						Context.State = RtfInterpreterState.InDocument;
-					}
+                    // allow spaces in between header tables
+                    // Added because untrimmed spaces were cause premature jump from header to document state and causing color problems.
+                    var t = text.Text != null ? text.Text.Trim() : "";
+                    if (!string.IsNullOrEmpty(t))
+                    {
+                        Context.State = RtfInterpreterState.InDocument;
+                    }
 					break;
 				case RtfInterpreterState.InDocument:
 					break;
